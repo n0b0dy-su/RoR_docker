@@ -8,11 +8,7 @@ The [app folder](./app) is the directory linked in the volume of the container a
 
 This conatiner are based on official [Ruby image](https://hub.docker.com/_/ruby) and use the last release (default settings).
 
- **NOTE:** If you change the conatiner name in [docker-compose file](./docker-compose.yml) change **ror_dev** int the Run command for the new container name.
-
-
-
-
+ **NOTE:** If you change the conatiner name in [docker-compose file](./docker-compose.yml) change **ruby_denv** int the Run command for the new container name.
 
 ## Build and Run
 
@@ -25,7 +21,7 @@ sudo docker-compose build
 Run the container with the follow command
 
 ```bash
-sudo docker-compose run --rm --service-ports ror_dev
+sudo docker-compose run --rm --service-ports ruby_denv
 ```
 
 
@@ -36,15 +32,15 @@ sudo docker-compose run --rm --service-ports ror_dev
 >
 > ```dockerfile
 > FROM ruby
-> 
-> WORKDIR /home/app
-> 
 > ENV PORT 3000
 > 
 > EXPOSE $PORT
 > 
+> WORKDIR /home/app
+> COPY Gemfile /home/app/
 > RUN gem install bundler
-> RUN gem install rails
+> RUN bundle update
+> RUN bundle install
 > RUN apt-get update -qq && apt-get install -y nodejs
 > RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 > RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -61,14 +57,45 @@ sudo docker-compose run --rm --service-ports ror_dev
 > ```yaml
 > version: "3.7"
 > services:
->   ror_dev:
->     build: .
->     container_name: ror_dev
+>     ruby_denv:
+>        build: .
+>        container_name: ruby_denv
+>        # default port configuration for rails
 >     ports:
 >       - "3000:3000"
 >     volumes:
 >       - ./app:/home/app
-> ```
->
+>```
 > 
 
+
+
+**Note**: The [`Gemfile`](./Gemfile) has default configuration for [`rails` ](https://api.rubyonrails.org/), just install rails gem, yo can modify it as required
+
+## Extra step for rails
+
+After to build and run the container, run the follow commands.
+
+- Create the rails folder app and change directory
+
+  ```bash	
+  mkdir folder_app && cd folder_app
+  ```
+
+- Update ruby gems
+
+  ```bash
+  bundle update
+  ```
+
+- Install ruby gems from Gemfile
+
+  ```bash
+  bundle install
+  ```
+
+- Run rails server, note the `$PORT` variable is the same of the [`Dockerfile`](./Dockerfile)
+
+  ```bash
+  rails server -p $PORT -b 0.0.0.0
+  ```

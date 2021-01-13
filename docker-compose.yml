@@ -1,8 +1,9 @@
 version: "3.7"
 services:
-  ror_dev:
+  ruby_denv:
     build: .
-    container_name: ror_dev
+    container_name: ruby_denv
+    # default port configuration for rails
     ports:
       - "3000:3000"
     volumes:
